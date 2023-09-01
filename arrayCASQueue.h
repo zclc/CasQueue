@@ -25,7 +25,7 @@
 #endif
 
 
-#define ARRAY_SIZE 65536
+#define ARRAY_SIZE 65535
 
 using u64INT = unsigned long;
 
@@ -42,8 +42,6 @@ public:
 
     bool dequeue(ELEM_T& a_data);
 
-    bool try_dequeue(ELEM_T& a_data);
-
 private:
 
     ELEM_T m_thequeue[Q_SIZE];
@@ -55,6 +53,8 @@ private:
 
     inline u64INT countToIndex(u64INT a_count);
 };
+
+#include "arrayCASQueue.h"
 
 template <class ELEM_T, u64INT Q_SIZE>
 inline ArrayCASQueue<ELEM_T, Q_SIZE>::ArrayCASQueue()
@@ -103,6 +103,36 @@ inline bool ArrayCASQueue<ELEM_T, Q_SIZE>::enqueue(const ELEM_T &a_data)
     }
 
     AtomicAdd(&m_count, 1);
+
+    return false;
+}
+
+template <class ELEM_T, u64INT Q_SIZE>
+inline bool ArrayCASQueue<ELEM_T, Q_SIZE>::dequeue(ELEM_T &a_data)
+{
+    u64INT currentMaximumReadIndex;
+    u64INT currentReadIndex;
+
+    do
+    {
+        currentReadIndex = m_readIndex;
+        currentMaximumReadIndex = m_maximumReadIndex;
+
+        if(countToIndex(currentReadIndex) ==
+            countToIndex(currentMaximumReadIndex))
+        {
+            return false;
+        }
+
+        a_data = m_thequeue[countToIndex(currentReadIndex)];
+
+        if(CAS(&m_readIndex, currentReadIndex, (currentReadIndex+1)))
+        {
+            AtomicSub(&m_count, 1);
+            return true;
+        }
+
+    } while (true);
 
     return false;
 }
