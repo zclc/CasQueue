@@ -81,7 +81,7 @@ inline u64INT ArrayCASQueue<ELEM_T, Q_SIZE>::size()
 template <class ELEM_T, u64INT Q_SIZE>
 inline bool ArrayCASQueue<ELEM_T, Q_SIZE>::enqueue(const ELEM_T &a_data)
 {
-    u64INT currentWriteIndex;
+    u64INT currentWriteIndex;/* 获取写指针的位置 */
     u64INT currentReadIndex;
     do
     {
@@ -104,7 +104,7 @@ inline bool ArrayCASQueue<ELEM_T, Q_SIZE>::enqueue(const ELEM_T &a_data)
 
     AtomicAdd(&m_count, 1);
 
-    return false;
+    return true;
 }
 
 template <class ELEM_T, u64INT Q_SIZE>
@@ -121,6 +121,7 @@ inline bool ArrayCASQueue<ELEM_T, Q_SIZE>::dequeue(ELEM_T &a_data)
         if(countToIndex(currentReadIndex) ==
             countToIndex(currentMaximumReadIndex))
         {
+            // 队列为空
             return false;
         }
 
