@@ -5,7 +5,7 @@ cas lack free queue
 
 插入 2000000 int
 
-|test no |mutex queue time(ms)| cas queue time(ms)|
+|test no |cas queue time(ms)| mutex queue time(ms)|
 |:-----: |:----------:|:----------:|
 |1 | 326 | 391 |
 |2 |335|453|
